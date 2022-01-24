@@ -60,24 +60,18 @@ cond [(munit? xs) null] [(apair? xs) (cons (apair-e1 xs) (numexlist->racketlist 
                                     ))
 
 
-
-
-
-
-
-
-
-
-
 ;; Problem 2
 
 ;; lookup a variable in an environment
 ;; Complete this function
 (define (envlookup env str)
-  (cond [(null? env) (error "unbound variable during evaluation" str)]
-  		"CHANGE" 
-		)
- )
+  (cond
+    [(null? env) (error "unbound variable during evaluation" str)]
+    [(equal? (car (car env) ) str) (cdr (car env) ) ]
+    [#t (envlookup (cdr env) str)]
+
+                
+ ) )
 
 ;; Complete more cases for other kinds of NUMEX expressions.
 ;; We will test eval-under-env by calling it directly even though

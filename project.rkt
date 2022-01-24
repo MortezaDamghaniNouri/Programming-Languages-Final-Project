@@ -206,6 +206,7 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
   (cond [(var? e) 
          (infer-under-env (envlookup env (var-string e)) env)]
 
+        ;; Plus
         [(plus? e) 
          (let ([t1 (infer-under-env (plus-e1 e) env)]
                [t2 (infer-under-env (plus-e2 e) env)])
@@ -213,6 +214,34 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
                     (equal? "int" t2))
                "int"
                (error "NUMEX TYPE ERROR: addition applied to non-integer")))]
+        
+        ;; Minus
+        [(minus? e) 
+         (let ([t1 (infer-under-env (minus-e1 e) env)]
+               [t2 (infer-under-env (minus-e2 e) env)])
+           (if (and (equal? "int" t1)
+                    (equal? "int" t2))
+               "int"
+               (error "NUMEX TYPE ERROR: subtraction applied to non-integer")))]
+
+
+        ;; Mult
+        [(mult? e) 
+         (let ([t1 (infer-under-env (mult-e1 e) env)]
+               [t2 (infer-under-env (mult-e2 e) env)])
+           (if (and (equal? "int" t1)
+                    (equal? "int" t2))
+               "int"
+               (error "NUMEX TYPE ERROR: multiplication applied to non-integer")))]
+
+        ;; Div
+        [(div? e) 
+         (let ([t1 (infer-under-env (div-e1 e) env)]
+               [t2 (infer-under-env (div-e2 e) env)])
+           (if (and (equal? "int" t1)
+                    (equal? "int" t2))
+               "int"
+               (error "NUMEX TYPE ERROR: division applied to non-integer")))]
 
         [(num? e)
          (cond
@@ -223,6 +252,37 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
          (cond
            [(boolean? (bool-b e)) "bool"]
            [#t (error "NUMEX TYPE ERROR: bool should be #t or #f")])]
+
+        ;; Munit
+        [(munit? e) "null"]
+
+        ;; Andalso
+        [(andalso? e)(
+                      cond [(and (equal? "bool" (infer-under-env (andalso-e1 e) env) ) (equal? "bool" (infer-under-env (andalso-e2 e) env) ) ) "bool" ]
+                           [#t (error "NUMEX TYPE ERROR: the inputs of andalso are not boolean")]
+                     )]
+        ;; Neg
+        [(neg? e)(
+                  cond [(equal? "int" (infer-under-env (neg-e1 e) env) ) "int" ]
+                       [(equal? "bool" (infer-under-env (neg-e1 e) env) ) "bool" ]
+                       [#t (error "NUMEX TYPE ERROR: the type of teh inputs of neg must be int or bool which is not")]
+                  )]
+
+        ;; Cnd
+        [(cnd? e) (
+                   cond [(and (equal? "bool" (infer-under-env (cnd-e1 e) env) ) (equal? (infer-under-env (cnd-e2 e) env) (infer-under-env (cnd-e3 e) env) ) ) (infer-under-env (cnd-e2 e) env) ]
+                        [#t (error "NUMEX TYPE ERROR: the type of cnd can not be recognized")]
+
+                   )]
+
+        ;; Iseq
+        [(iseq? e) (
+                    cond [(equal? (infer-under-env (iseq-e1 e) env) (infer-under-env (iseq-e2 e) env) ) "bool" ]
+                         [#t (error "NUMEX TYPE ERROR: the inputs of the iseq do not have the same type") ]
+
+                    )]
+
+        
 
         ;; CHANGE add more cases here
         [(string? e) e]

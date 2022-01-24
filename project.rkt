@@ -55,12 +55,19 @@ cond [(null? xs) munit] [(list? xs) (apair (car xs) (racketlist->numexlist (cdr 
                                     ))
 
 (define (numexlist->racketlist xs) (
-
-
-
-
+cond [(munit? xs) null] [(apair? xs) (cons (apair-e1 xs) (numexlist->racketlist (apair-e2 xs) ) ) ] [#t (error "The input is not a numex list")]
 
                                     ))
+
+
+
+
+
+
+
+
+
+
 
 ;; Problem 2
 

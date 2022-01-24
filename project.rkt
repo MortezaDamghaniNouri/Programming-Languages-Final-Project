@@ -33,9 +33,7 @@
 (struct munit () #:transparent) ;; unit value -- good for ending a list
 (struct ismunit (e1) #:transparent)
 (struct closure (env f) #:transparent)
-(struct ismunit (e1) #:transparent)
 (struct letrec (s1 e1 s2 e2 s3 e3 s4 e4 e5) #:transparent) ;; a letrec expression for recursive definitions
-
 (struct tlam  (nameopt formal arg-type body) #:transparent) ;; a typed argument, recursive(?) 1-argument function
 (struct key  (s e) #:transparent) ;; key holds corresponding value of s which is e
 (struct record (k r) #:transparent) ;; record holds several keys
@@ -50,8 +48,19 @@
 
 ;; Problem 1
 
-(define (racketlist->numexlist xs) "CHANGE")
-(define (numexlist->racketlist xs) "CHANGE")
+
+(define (racketlist->numexlist xs) (
+cond [(null? xs) munit] [(list? xs) (apair (car xs) (racketlist->numexlist (cdr xs) ) ) ] [#t (error "The input is not a racket list") ]
+
+                                    ))
+
+(define (numexlist->racketlist xs) (
+
+
+
+
+
+                                    ))
 
 ;; Problem 2
 

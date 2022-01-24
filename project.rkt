@@ -89,6 +89,12 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 ;; "in real life" it would be a helper function of eval-exp.
 (define (eval-under-env e env)
   (cond [(var? e) (envlookup env (var-string e))]
+        [(num? e) (is_valid e) ]
+        [(bool? e) (is_valid e)]
+        [(munit? e) (is_valid e)]
+        [(apair? e) (is_valid e)]
+        [(closure? e) (is_valid e)]
+        ;; Plus
         [(plus? e) 
          (let ([v1 (eval-under-env (plus-e1 e) env)]
 
@@ -98,9 +104,64 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
                [v2 (eval-under-env (plus-e2 e) env)])
            (if (and (num? v1)
                     (num? v2))
-               (num (+ (num-int v1) 
+               (num (+ (num-int v1)
                        (num-int v2)))
                (error "NUMEX addition applied to non-number")))]
+
+        ;; Minus
+        [(minus? e) 
+         (let ([v1 (eval-under-env (minus-e1 e) env)]
+               [v2 (eval-under-env (minus-e2 e) env)])
+           (if (and (num? v1)
+                    (num? v2))
+               (num (- (num-int v1)
+                       (num-int v2)))
+               (error "NUMEX subtraction applied to non-number")))]
+
+        ;; Mult
+        [(mult? e) 
+         (let ([v1 (eval-under-env (mult-e1 e) env)]
+               [v2 (eval-under-env (mult-e2 e) env)])
+           (if (and (num? v1)
+                    (num? v2))
+               (num (* (num-int v1)
+                       (num-int v2)))
+               (error "NUMEX multiplication applied to non-number")))]
+        
+        ;; Div
+        [(div? e) 
+         (let ([v1 (eval-under-env (div-e1 e) env)]
+               [v2 (eval-under-env (div-e2 e) env)])
+           (if (and (num? v1)
+                    (num? v2))
+               (num (/ (num-int v1)
+                       (num-int v2)))
+               (error "NUMEX division applied to non-number")))]
+        
+        ;; Andalso
+        [(andalso? e) 
+         (let ([v1 (eval-under-env (andalso-e1 e) env)]
+               [v2 (eval-under-env (andalso-e2 e) env)])
+           (if (and (bool? v1)
+                    (bool? v2))
+               (bool (and (bool-b v1)
+                       (bool-b v2)))
+               (error "NUMEX andalso applied to non-booleans")))]
+
+        ;; Orelse
+        [(orelse? e) 
+         (let ([v1 (eval-under-env (orelse-e1 e) env)]
+               [v2 (eval-under-env (orelse-e2 e) env)])
+           (if (and (bool? v1)
+                    (bool? v2))
+               (bool (or (bool-b v1)
+                       (bool-b v2)))
+               (error "NUMEX orelse applied to non-booleans")))]
+
+
+
+
+        
         ;; CHANGE add more cases here
         [(string? e) e]
         [#t (error (format "bad NUMEX expression: ~v" e))]))

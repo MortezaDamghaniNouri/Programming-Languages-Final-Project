@@ -55,12 +55,24 @@ cond [(null? xs) munit] [(list? xs) (apair (car xs) (racketlist->numexlist (cdr 
                                     ))
 
 (define (numexlist->racketlist xs) (
-cond [(munit? xs) null] [(apair? xs) (cons (apair-e1 xs) (numexlist->racketlist (apair-e2 xs) ) ) ] [#t (error "The input is not a numex list")]
+cond [(munit? xs) null] [(apair? xs) (cons (apair-e1 xs) (numexlist->racketlist (apair-e2 xs) ) ) ] [#t (error "The input is not a Numex list")]
 
                                     ))
 
 
+
 ;; Problem 2
+;; This function checks the types of inputs of different types in Numex
+(define (is_valid e)(
+cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the var type is not a string") )) ]
+[(num? e) (cond [(integer? (num-int e) ) e ] [#t (error "The input of the num type is not an integer") ] ) ]
+[(bool? e) (cond [(boolean? (bool-b e)) e] [#t (error "The input of the bool type is not a boolean") ] ) ]
+[(munit? e) e]
+[(apair? e) (apair (is_valid (apair-e1 e) ) (is_valid (apair-e2 e) ) ) ]
+[(closure? e) e]
+[#t (error "The input is not a valid Numex type") ]
+                     ))
+
 
 ;; lookup a variable in an environment
 ;; Complete this function
@@ -69,7 +81,6 @@ cond [(munit? xs) null] [(apair? xs) (cons (apair-e1 xs) (numexlist->racketlist 
     [(null? env) (error "unbound variable during evaluation" str)]
     [(equal? (car (car env) ) str) (cdr (car env) ) ]
     [#t (envlookup (cdr env) str)]
-
                 
  ) )
 
@@ -77,10 +88,13 @@ cond [(munit? xs) null] [(apair? xs) (cons (apair-e1 xs) (numexlist->racketlist 
 ;; We will test eval-under-env by calling it directly even though
 ;; "in real life" it would be a helper function of eval-exp.
 (define (eval-under-env e env)
-  (cond [(var? e) 
-         (envlookup env (var-string e))]
+  (cond [(var? e) (envlookup env (var-string e))]
         [(plus? e) 
          (let ([v1 (eval-under-env (plus-e1 e) env)]
+
+
+
+               
                [v2 (eval-under-env (plus-e2 e) env)])
            (if (and (num? v1)
                     (num? v2))

@@ -159,6 +159,35 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
                (error "NUMEX orelse applied to non-booleans")))]
 
 
+        ;; Neg
+        [(neg? e) 
+         (cond [(bool? (eval-under-env (neg-e1 e) env) ) (bool (not (neg-e1 e) ) ) ]
+               [(num? (eval-under-env (neg-e1 e) env) ) (num (- (neg-e1 e) (* 2 (neg-e1 e) ) ) ) ]
+               [#t (error "NUMEX neg applied to something which is neither bool nor num")]
+               )]
+
+       ;; Cnd
+        [(cnd? e)
+         (cond [(and (bool? (eval-under-env (cnd-e1 e) env) ) (and (bool-b (cnd-e1 e)) #t) ) (eval-under-env (cnd-e2 e) env) ]
+               [(and (bool? (eval-under-env (cnd-e1 e) env) ) (and (not (bool-b (cnd-e1 e))) #t) ) (eval-under-env (cnd-e3 e) env) ]
+               [#t (error "Not a valid NUMEX cnd")]
+               )]
+        
+        ;;Iseq
+        [(iseq? e)(
+
+          cond [(and (num? (eval-under-env (iseq-e1 e) env) ) (num? (eval-under-env (iseq-e2 e) env)) ) (bool (= (num-int (iseq-e1 e) ) (num-int (iseq-e2 e) ) ) ) ]
+               [(and (num? (eval-under-env (iseq-e1 e) env) ) (bool? (eval-under-env (iseq-e2 e) env) ) ) (bool #f)]
+               [(and (bool? (eval-under-env (iseq-e1 e) env) ) (num? (eval-under-env (iseq-e2 e) env) ) ) (bool #f)]
+               [(and (bool? (eval-under-env (iseq-e1 e) env) ) (bool? (eval-under-env (iseq-e2 e) env) ) ) (bool (equal? (bool-b (iseq-e1 e) ) (bool-b (iseq-e2 e) ) ) )]
+               [#t (error "The inputs of iseq are not bool or num") ]
+                   )]
+
+
+
+
+        
+        
 
 
         

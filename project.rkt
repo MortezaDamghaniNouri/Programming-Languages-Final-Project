@@ -11,39 +11,37 @@
 (struct var  (string) #:transparent)  ;; a variable, e.g., (var "foo")
 (struct num  (int)    #:transparent)  ;; a constant number, e.g., (num 17)
 (struct plus  (e1 e2)  #:transparent)  ;; add two expressions
+
+;; Added structs
 (struct bool  (b)  #:transparent)
 (struct minus  (e1 e2)  #:transparent)
+(struct mult  (e1 e2)  #:transparent)
+(struct div  (e1 e2)  #:transparent)
+(struct neg  (e1)  #:transparent)
+(struct andalso  (e1 e2)  #:transparent)
+(struct orelse  (e1 e2)  #:transparent)
+(struct cnd  (e1 e2 e3)  #:transparent)
+(struct iseq  (e1 e2)  #:transparent)
+(struct ifnzero  (e1 e2 e3)  #:transparent)
+(struct ifleq  (e1 e2 e3 e4)  #:transparent)
+(struct lam  (s1 s2 body) #:transparent) ;; a recursive(?) 1-argument function
+(struct apply (e1 e2)       #:transparent) ;; function application
+(struct with  (s e1 e2)  #:transparent)
+(struct apair  (e1 e2)  #:transparent)
+(struct 1st  (e1)  #:transparent)
+(struct 2nd  (e1)  #:transparent)
+(struct munit () #:transparent) ;; unit value -- good for ending a list
+(struct ismunit (e1) #:transparent)
+(struct closure (env f) #:transparent)
+(struct ismunit (e1) #:transparent)
+(struct letrec (s1 e1 s2 e2 s3 e3 s4 e4 e5) #:transparent) ;; a letrec expression for recursive definitions
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-(struct lam  (nameopt formal body) #:transparent) ;; a recursive(?) 1-argument function
 (struct tlam  (nameopt formal arg-type body) #:transparent) ;; a typed argument, recursive(?) 1-argument function
-(struct apply (funexp actual)       #:transparent) ;; function application
-
-
-(struct munit   ()      #:transparent) ;; unit value -- good for ending a list
-(struct ismunit (e)     #:transparent) ;; if e1 is unit then true else false
-
-;; a closure is not in "source" programs; it is what functions evaluate to
-(struct closure (env f) #:transparent) 
-
-
 (struct key  (s e) #:transparent) ;; key holds corresponding value of s which is e
 (struct record (k r) #:transparent) ;; record holds several keys
 (struct value (s r) #:transparent) ;; value returns corresponding value of s in r
 
-(struct letrec (s1 e1 s2 e2 e3) #:transparent) ;; a letrec expression for recursive definitions
+
 
 ;; Type structures
 ;; Primitive types are: "int", "bool" and "null"

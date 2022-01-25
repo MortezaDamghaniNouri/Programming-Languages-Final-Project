@@ -43,9 +43,8 @@
    (check-equal? (eval-exp (orelse (iseq (num 2) (num 2)) (bool #f))) (bool #t) "test15")
    (check-equal? (eval-exp (neg (iseq (bool #t) (bool #f)))) (bool #t) "test16")
    (check-equal? (eval-exp (iseq (num 2) (bool #f))) (bool #f) "test17")
-   (check-equal? (eval-exp (iseq (num 2) (num -2))) (bool #f) "test18") 
-   
-
+   (check-equal? (eval-exp (iseq (num 2) (num -2))) (bool #f) "test18")
+   (check-equal? (eval-exp (neg (ismunit (apair (num 3) (munit))))) (bool #t) "test19")
    (check-exn exn:fail?
               (lambda () (eval-exp (plus (num 5) (bool #t)))
               "test20"))
@@ -77,13 +76,32 @@
               (lambda () (eval-exp (2nd (num 3)))
               "test29"))
 
+
+
+        
 (check-equal? (eval-exp (neg (num 0))) (num 0) "test30")
 (check-equal? (eval-exp (neg (neg (num -11)))) (num -11) "test31")
-
-         ; condition
-   (check-equal? (eval-exp (cnd (bool #t) (plus (num 1) (num 2)) (num "-1"))) (num 3) "test32")
    
+   ; condition
+   (check-equal? (eval-exp (cnd (bool #t) (plus (num 1) (num 2)) (num "-1"))) (num 3) "test32")
+   (check-equal? (eval-exp (cnd (iseq (bool #t) (bool #f)) (munit) (bool #f))) (bool #f) "test33")
    (check-equal? (eval-exp (cnd (bool #f) (num 2) (bool #t))) (bool #t) "test34")
+(check-exn exn:fail?
+              (lambda () (eval-exp (cnd (num 2) (num 2) (bool #t)))
+              "test35"))
+
+(check-exn exn:fail?
+              (lambda () (eval-exp (cnd (munit) (num 2) (bool #t)))
+              "test36"))
+
+(check-equal? (eval-exp (cnd (andalso (neg (bool #t)) (bool 2))
+                             (plus (num 1) (num 2))
+                             (mult (num -1) (num -2))
+                             )) (num 2) "test37")
+
+
+   
+
 
    ))
 

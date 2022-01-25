@@ -168,24 +168,32 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 
        ;; Cnd
         [(cnd? e)
-         (cond [(and (bool? (eval-under-env (cnd-e1 e) env) ) (and (bool-b (cnd-e1 e)) #t) ) (eval-under-env (cnd-e2 e) env) ]
-               [(and (bool? (eval-under-env (cnd-e1 e) env) ) (and (not (bool-b (cnd-e1 e))) #t) ) (eval-under-env (cnd-e3 e) env) ]
+         (cond [(and (bool? (eval-under-env (cnd-e1 e) env) ) (and (bool-b (eval-under-env (cnd-e1 e) env )) #t) ) (eval-under-env (cnd-e2 e) env) ]
+               [(and (bool? (eval-under-env (cnd-e1 e) env) ) (and (not (bool-b (eval-under-env (cnd-e1 e) env))) #t) ) (eval-under-env (cnd-e3 e) env) ]
                [#t (error "Not a valid NUMEX cnd")]
                )]
         
         ;;Iseq
         [(iseq? e)(
 
-          cond [(and (num? (eval-under-env (iseq-e1 e) env) ) (num? (eval-under-env (iseq-e2 e) env)) ) (bool (= (num-int (iseq-e1 e) ) (num-int (iseq-e2 e) ) ) ) ]
+          cond [(and (num? (eval-under-env (iseq-e1 e) env) ) (num? (eval-under-env (iseq-e2 e) env)) ) (bool (= (num-int (eval-under-env (iseq-e1 e) env ) ) (num-int (eval-under-env (iseq-e2 e) env ) ) ) ) ]
                [(and (num? (eval-under-env (iseq-e1 e) env) ) (bool? (eval-under-env (iseq-e2 e) env) ) ) (bool #f)]
                [(and (bool? (eval-under-env (iseq-e1 e) env) ) (num? (eval-under-env (iseq-e2 e) env) ) ) (bool #f)]
-               [(and (bool? (eval-under-env (iseq-e1 e) env) ) (bool? (eval-under-env (iseq-e2 e) env) ) ) (bool (equal? (bool-b (iseq-e1 e) ) (bool-b (iseq-e2 e) ) ) )]
+               [(and (bool? (eval-under-env (iseq-e1 e) env) ) (bool? (eval-under-env (iseq-e2 e) env) ) ) (bool (equal? (bool-b (eval-under-env (iseq-e1 e) env ) ) (bool-b (eval-under-env (iseq-e2 e) env) ) ) )]
                [#t (error "The inputs of iseq are not bool or num") ]
                    )]
 
+        ;; Ismunit
+        [(ismunit? e) (
+                       cond [(munit? (eval-under-env (ismunit-e1 e) env) ) (bool #t) ]
+                            [#t (bool #f) ]
 
+                       )]
 
-
+        ;; Apair
+        [(apair? e) (
+                     apair (eval-under-env (apair-e1 e) env ) (eval-under-env (apair-e2 e) env )
+             )]
         
         
 

@@ -99,7 +99,8 @@
                              (mult (num -1) (num -2))
                              )) (num 2) "test37")
 
-
+(check-equal? (eval-exp (ifnzero (num 4) (num 1) (num 0))) (num 1) "test38")
+   (check-equal? (eval-exp (ifnzero (mult (num 0) (num 4)) (num 1) (bool #t))) (bool #t) "test39")
    
 
 

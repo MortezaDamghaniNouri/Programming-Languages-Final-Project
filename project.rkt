@@ -194,6 +194,58 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
         [(apair? e) (
                      apair (eval-under-env (apair-e1 e) env ) (eval-under-env (apair-e2 e) env )
              )]
+
+        ;; Ifnzero
+        [(ifnzero? e) (
+                       cond [(zero? (num-int (eval-under-env (ifnzero-e1 e) env) ) ) (eval-under-env (ifnzero-e3 e) env) ]
+                            [#t (eval-under-env (ifnzero-e2 e) env)]
+
+                       )]
+
+        ;; ifleq
+        [(ifleq? e) (
+                     cond [(> (num-int(eval-under-env (ifleq-e1 e) env) ) (num-int(eval-under-env (ifleq-e2 e) env) ) ) (eval-under-env (ifleq-e4 e) env ) ]
+                          [#t (eval-under-env (ifleq-e3 e) env) ]
+
+             ) ]
+
+        ;; With
+        [(with? e) 
+                    (eval-under-env (with-e2 e) (append (list (cons (eval-under-env (with-s e) env) (eval-under-env (with-e1 e) env) )) env))
+             ]
+
+        ;; Lam
+        [(lam? e) (
+                   closure env e
+
+             )]
+
+
+
+        
+
+        ;; Apply
+        [(apply? e)
+        (
+         cond [(closure? (eval-under-env (apply-e1 e) env ) ) (
+            let ([v (eval-under-env (apply-e2 e) env)])
+            (let ([clsr_fun (closure-f (eval-under-env (apply-e1 e) env) )])
+              (if (null? (lam-s1 clsr_fun))
+                (eval-under-env (lam-body clsr_fun) (cons (cons (lam-s2 clsr_fun) v) (closure-env (eval-under-env (apply-e1 e) env ) )))
+                (eval-under-env (lam-body clsr_fun) (cons (cons (lam-s1 clsr_fun) (eval-under-env (apply-e1 e) env) ) 
+                    (cons (cons (lam-s2 clsr_fun) v) (closure-env (eval-under-env (apply-e1 e) env ) ))))
+              )
+            )
+
+
+                                                               ) ]
+        )]
+
+        
+
+
+
+
         
         
 

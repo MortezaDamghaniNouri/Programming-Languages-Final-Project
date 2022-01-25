@@ -11,15 +11,14 @@
   (test-suite
    "Project Tests"
 
-   ; arithmetic functions test
-   (check-equal? (eval-exp (value "Donald Knuth" (record (key "Donald Knuth" (num 1)) (record (key "John McCarthy" (num 2)) (record (key "Barbara Liskov" (num 3)) (munit)))))) (num 1) "test132")
-(check-equal? (eval-exp (value "John McCarthy" (record (key "Donald Knuth" (num 1)) (record (key "John McCarthy" (num 2)) (record (key "Barbara Liskov" (num 3)) (munit)))))) (num 2) "test133")
-(check-equal? (eval-exp (value "Barbara Liskov" (record (key "Donald Knuth" (num 1)) (record (key "John McCarthy" (num 2)) (record (key "Barbara Liskov" (num 3)) (munit)))))) (num 3) "test134")
-(check-equal? (eval-exp (value "Lotfi A. Zadeh" (record (key "John McCarthy" (num 2)) (record (key "Barbara Liskov" (num 3)) (munit))))) (munit) "test135")
-(check-equal? (eval-exp (value "Maryam Mirzakhani" (record (key "Donald Knuth" (num 1)) (record (key "John McCarthy" (num 2)) (record (key "Barbara Liskov" (num 3)) (munit)))))) (munit) "test136")
-(check-equal? (eval-exp (value "Bertrand Russell" (record (key "Donald Knuth" (num 1)) (record (key "John McCarthy" (num 2)) (record (key "Barbara Liskov" (num 3)) (record (key "Zohar Manna" (num 4)) (munit))))))) (munit) "test137")
-   
-   
+  (check-equal? (eval-exp (plus (plus (num 1) (num 2)) (minus (num 3) (num 4)))) (num 2) "test85")
+ (check-equal? (eval-exp (mult (mult (num 3) (num 2)) (mult (num 3) (num 4)))) (num 72) "test86")
+   (check-exn exn:fail? (lambda () (eval-exp (mult (num 3) (munit)))) "test87")
+
+   (check-equal? (eval-exp (num -5)) (num -5) "test88")
+   (check-equal? (eval-exp (munit)) (munit) "test89")
+    (check-equal? (eval-exp (closure '() (lam null "x" (var "x"))))
+                 (closure '() (lam null "x" (var "x"))) "test90")
 
 
    ))

@@ -461,7 +461,7 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
 ;; Problem 4
 
 (define (ifmunit e1 e2 e3) (
-cond [(ismunit? e1) e2] [#t e3]
+cond [(munit? (eval-exp e1) ) e2] [#t e3]
                             ))
 
 (define (with* bs e2) "CHANGE")

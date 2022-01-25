@@ -136,35 +136,33 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
                [v2 (eval-under-env (div-e2 e) env)])
            (if (and (num? v1)
                     (num? v2))
-               (num (/ (num-int v1)
+               (num (quotient (num-int v1)
                        (num-int v2)))
                (error "NUMEX division applied to non-number")))]
         
         ;; Andalso
         [(andalso? e) 
-         (let ([v1 (eval-under-env (andalso-e1 e) env)]
-               [v2 (eval-under-env (andalso-e2 e) env)])
-           (if (and (bool? v1)
-                    (bool? v2))
-               (bool (and (bool-b v1)
-                       (bool-b v2)))
-               (error "NUMEX andalso applied to non-booleans")))]
+         (let ([v1 (eval-under-env (andalso-e1 e) env)])
+           (cond [(and (bool? v1) (equal? (bool-b v1) #f ) ) (bool #f) ]
+                 [(and (bool? v1) (bool? (eval-under-env (andalso-e2 e) env ) ) ) (bool (and (bool-b v1) (bool-b (eval-under-env (andalso-e2 e) env) ) )) ]
+                 [#t (error "NUMEX andalso applied to non-booleans" ) ]
+
+
+             ))]
 
         ;; Orelse
         [(orelse? e) 
-         (let ([v1 (eval-under-env (orelse-e1 e) env)]
-               [v2 (eval-under-env (orelse-e2 e) env)])
-           (if (and (bool? v1)
-                    (bool? v2))
-               (bool (or (bool-b v1)
-                       (bool-b v2)))
-               (error "NUMEX orelse applied to non-booleans")))]
+         (let ([v1 (eval-under-env (orelse-e1 e) env)])
+           (cond [(and (bool? v1 ) (equal? (bool-b v1) #t) ) (bool #t)]
+                 [(and (bool? v1) (bool? (eval-under-env (orelse-e2 e) env ) ) ) (or (bool-b v1) (bool-b (eval-under-env (orelse-e2 e) env) ) ) ]
+                 [#t (error "NUMEX orelse applied to non-booleans" )]
+                 ))]
 
 
         ;; Neg
         [(neg? e) 
-         (cond [(bool? (eval-under-env (neg-e1 e) env) ) (bool (not (neg-e1 e) ) ) ]
-               [(num? (eval-under-env (neg-e1 e) env) ) (num (- (neg-e1 e) (* 2 (neg-e1 e) ) ) ) ]
+         (cond [(bool? (eval-under-env (neg-e1 e) env) ) (bool (not (bool-b (eval-under-env (neg-e1 e) env) ) ) ) ]
+               [(num? (eval-under-env (neg-e1 e) env) ) (num (- (num-int (eval-under-env (neg-e1 e) env) ) (* 2 (num-int (eval-under-env (neg-e1 e) env) ) ) ) ) ]
                [#t (error "NUMEX neg applied to something which is neither bool nor num")]
                )]
 
@@ -349,15 +347,28 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 cond [(ismunit? e1) e2] [#t e3]
                             ))
 
-
-
-
-
-
-
 (define (with* bs e2) "CHANGE")
 
-(define (ifneq e1 e2 e3 e4) "CHANGE")
+
+
+
+(define (ifneq e1 e2 e3 e4) (
+cond [(equal? (eval-exp e1) (eval-exp e2) ) (eval-exp e4)]
+     [#t (eval-exp e3) ]
+                             ))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ;; Problem 5
 

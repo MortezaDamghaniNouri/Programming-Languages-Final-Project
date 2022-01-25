@@ -38,13 +38,15 @@
 (struct key  (s e) #:transparent) ;; key holds corresponding value of s which is e
 (struct record (k r) #:transparent) ;; record holds several keys
 (struct value (s r) #:transparent) ;; value returns corresponding value of s in r
-
-
-
+(struct function (input-type output-type) #:transparent) ;; e.g. (function ("int" int")) means fn f "int" -> "int"
 ;; Type structures
 ;; Primitive types are: "int", "bool" and "null"
 (struct collection (type) #:transparent) ;; collection of a certain type, e.g., (collection "int")
-(struct function (input-type output-type) #:transparent) ;; e.g. (function ("int" int")) means fn f "int" -> "int"
+
+
+
+
+
 
 ;; Problem 1
 
@@ -242,17 +244,19 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
                     (equal? "int" t2))
                "int"
                (error "NUMEX TYPE ERROR: division applied to non-integer")))]
-
+        ;; Num
         [(num? e)
          (cond
            [(integer? (num-int e)) "int"]
            [#t (error "NUMEX TYPE ERROR: num should be a constant number")])]
 
+        ;; Bool
         [(bool? e)
          (cond
            [(boolean? (bool-b e)) "bool"]
            [#t (error "NUMEX TYPE ERROR: bool should be #t or #f")])]
 
+        
         ;; Munit
         [(munit? e) "null"]
 
@@ -282,6 +286,53 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 
                     )]
 
+
+        ;; Function
+        [(tlam? e) (
+
+                    function (tlam-arg-type e) (infer-under-env (tlam-body e) env) 
+                    )]
+        
+        ;; Apply
+        [(apply? e) (
+                     cond [(and (function? (infer-under-env (apply-e1 e) env ) ) (equal? (infer-under-env (apply-e1 e) env) (infer-under-env (apply-e2 e) env) ) ) (infer-under-env (apply-e1 e) env) ]
+                          [#t (error "NUMEX TYPE ERROR: the inputs of the apply do not have the same function type") ]
+                     )
+         ]
+
+        
+        ;; Apair
+        [(apair? e) (
+                     cond [(or (equal? (infer-under-env (apair-e1 e) env) (infer-under-env (apair-e2 e) env) ) (equal? "null" (infer-under-env (apair-e2 e) env) ) ) (collection (infer-under-env (apair-e1 e) env) ) ]
+                          [#t (error "NUMEX TYPE ERROR: the types of the elements of the apair are not equal") ]
+             )]
+        
+        ;; 1st
+        [(1st? e) (
+                   cond [(collection? (infer-under-env (1st-e1 e) env) ) (collection-type (infer-under-env (1st-e1 e) env) ) ]
+                        [#t (error "NUMEX TYPE ERROR: the type of the input of 1st is not proper") ]
+             )]
+
+        ;; 2nd
+        [(2nd? e) (
+                   cond [(collection? (infer-under-env (2nd-e1 e) env) ) (collection-type (infer-under-env (2nd-e1 e) env) ) ]
+                        [#t (error "NUMEX TYPE ERROR: the type of the input of 2nd is not proper") ]
+             )]
+
+        
+        ;;Ismunit
+        [(ismunit? e) (
+                       cond [(or (collection? (infer-under-env (ismunit-e1 e) env) ) (equal? "null" (infer-under-env (ismunit-e1 e) env) ) ) "bool"]
+                            [#t (error "NUMEX TYPE ERROR: the input of the ismunit does not have a proper type")]
+
+             )
+         ]
+
+        
+        
+
+
+
         
 
         ;; CHANGE add more cases here
@@ -294,7 +345,15 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 
 ;; Problem 4
 
-(define (ifmunit e1 e2 e3) "CHANGE")
+(define (ifmunit e1 e2 e3) (
+cond [(ismunit? e1) e2] [#t e3]
+                            ))
+
+
+
+
+
+
 
 (define (with* bs e2) "CHANGE")
 

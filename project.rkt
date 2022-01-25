@@ -52,7 +52,7 @@
 
 
 (define (racketlist->numexlist xs) (
-cond [(null? xs) munit] [(list? xs) (apair (car xs) (racketlist->numexlist (cdr xs) ) ) ] [#t (error "The input is not a racket list") ]
+cond [(null? xs) (munit)] [(list? xs) (apair (car xs) (racketlist->numexlist (cdr xs) ) ) ] [#t (error "The input is not a racket list") ]
 
                                     ))
 
@@ -70,7 +70,7 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 [(num? e) (cond [(integer? (num-int e) ) e ] [#t (error "The input of the num type is not an integer") ] ) ]
 [(bool? e) (cond [(boolean? (bool-b e)) e] [#t (error "The input of the bool type is not a boolean") ] ) ]
 [(munit? e) e]
-[(apair? e) (apair (is_valid (apair-e1 e) ) (is_valid (apair-e2 e) ) ) ]
+[(apair? e) e]
 [(closure? e) e]
 [#t (error "The input is not a valid Numex type") ]
                      ))
@@ -86,6 +86,18 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
                 
  ) )
 
+
+
+;; This function is used in Value for finding the corresponding value of s
+(define (does_exist s r) (
+cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
+     [(munit? (record-r r) ) (munit) ]
+     [#t (does_exist s (record-r r) ) ]
+            ))
+
+
+
+
 ;; Complete more cases for other kinds of NUMEX expressions.
 ;; We will test eval-under-env by calling it directly even though
 ;; "in real life" it would be a helper function of eval-exp.
@@ -94,7 +106,7 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
         [(num? e) (is_valid e) ]
         [(bool? e) (is_valid e)]
         [(munit? e) (is_valid e)]
-        [(apair? e) (is_valid e)]
+        [(apair? e) (apair (eval-under-env (apair-e1 e) env ) (eval-under-env (apair-e2 e) env ))]
         [(closure? e) (is_valid e)]
         ;; Plus
         [(plus? e) 
@@ -190,10 +202,6 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 
                        )]
 
-        ;; Apair
-        [(apair? e) (
-                     apair (eval-under-env (apair-e1 e) env ) (eval-under-env (apair-e2 e) env )
-             )]
 
         ;; Ifnzero
         [(ifnzero? e) (
@@ -215,10 +223,11 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
              ]
 
         ;; Lam
-        [(lam? e) (
-                   closure env e
-
-             )]
+        [(lam? e) 
+        (if (and (or (string? (lam-s1 e)) (null? (lam-s1 e))) (string? (lam-s2 e)))
+             (closure env e)
+             (error "NUMEX function name and parameter name must be string")
+        )]
 
 
 
@@ -239,13 +248,61 @@ cond [(var? e) (cond ((string? (var-string e)) e) (#t (error "The input of the v
 
 
                                                                ) ]
+              [#t (error "The first input of apply is not a closure") ]
+      
         )]
 
+
+        ;; 1st
+        [(1st? e) (
+                   cond [(apair? (eval-under-env (1st-e1 e) env ) ) (eval-under-env (apair-e1 (eval-under-env (1st-e1 e) env)) env ) ]
+                        [#t (error "The input of 1st is not an apair") ]
+
+             )]
         
+        ;; 2nd
+        [(2nd? e) (
+                   cond [(apair? (eval-under-env (2nd-e1 e) env ) ) (eval-under-env (apair-e2 (eval-under-env (2nd-e1 e) env )) env ) ]
+                        [#t (error "The input of 2nd is not an apair") ]
+
+             )]
+
+        ;;Letrec
+        [(letrec? e) (
+                      eval-under-env (letrec-e5 e) (append (list (cons (eval-under-env (letrec-s1 e) env) (eval-under-env (letrec-e1 e) env ) ) (cons (eval-under-env (letrec-s2 e) env) (eval-under-env (letrec-e2 e) env ) ) (cons (eval-under-env (letrec-s3 e) env) (eval-under-env (letrec-e3 e) env ) ) (cons (eval-under-env (letrec-s4 e) env) (eval-under-env (letrec-e4 e) env ) ) ) env)
+
+
+             )]
+
+
+        ;; Key
+        [(key? e) (
+                   cond [(string? (eval-under-env (key-s e) env) ) (key (eval-under-env (key-s e) env) (eval-under-env (key-e e) env)) ]
+                        [#t (error "The inputs of the key are not proper") ]
+             )]
+
+        ;; Record
+        [(record? e) (
+                      cond [(and (key? (eval-under-env (record-k e) env) ) (record? (eval-under-env (record-r e) env )) ) (record (eval-under-env (record-k e) env ) (eval-under-env (record-r e) env) ) ]
+                           [(and (key? (eval-under-env (record-k e) env) ) (munit? (eval-under-env (record-r e) env )) ) (record (eval-under-env (record-k e) env ) (eval-under-env (record-r e) env) ) ]
+                           [#t (error "The inputs of the record are not proper") ]
+
+
+             )]
+
+
+        
+        
+        
+        ;; Value
+        [(value? e)(
+                    cond [(and (string? (eval-under-env (value-s e) env ) ) (record? (eval-under-env (value-r e) env ) ) ) (does_exist (eval-under-env (value-s e) env ) (eval-under-env (value-r e) env  ) ) ]
 
 
 
 
+
+                    )]
         
         
 

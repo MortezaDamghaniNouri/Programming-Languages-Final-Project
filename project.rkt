@@ -166,7 +166,7 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
         [(orelse? e) 
          (let ([v1 (eval-under-env (orelse-e1 e) env)])
            (cond [(and (bool? v1 ) (equal? (bool-b v1) #t) ) (bool #t)]
-                 [(and (bool? v1) (bool? (eval-under-env (orelse-e2 e) env ) ) ) (or (bool-b v1) (bool-b (eval-under-env (orelse-e2 e) env) ) ) ]
+                 [(and (bool? v1) (bool? (eval-under-env (orelse-e2 e) env ) ) ) (bool (or (bool-b v1) (bool-b (eval-under-env (orelse-e2 e) env) ) ) ) ]
                  [#t (error "NUMEX orelse applied to non-booleans" )]
                  ))]
 
@@ -469,10 +469,7 @@ cond [(munit? (eval-exp e1) ) e2] [#t e3]
 
 
 
-(define (ifneq e1 e2 e3 e4) (
-cond [(equal? (eval-exp e1) (eval-exp e2) ) (eval-exp e4)]
-     [#t (eval-exp e3) ]
-                             ))
+(define (ifneq e1 e2 e3 e4) (cnd (iseq e1 e2) e4 e3))
 
 
 

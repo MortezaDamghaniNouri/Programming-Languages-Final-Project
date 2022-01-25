@@ -11,14 +11,20 @@
   (test-suite
    "Project Tests"
 
-  (check-equal? (eval-exp (plus (plus (num 1) (num 2)) (minus (num 3) (num 4)))) (num 2) "test85")
- (check-equal? (eval-exp (mult (mult (num 3) (num 2)) (mult (num 3) (num 4)))) (num 72) "test86")
-   (check-exn exn:fail? (lambda () (eval-exp (mult (num 3) (munit)))) "test87")
+   
 
-   (check-equal? (eval-exp (num -5)) (num -5) "test88")
-   (check-equal? (eval-exp (munit)) (munit) "test89")
-    (check-equal? (eval-exp (closure '() (lam null "x" (var "x"))))
-                 (closure '() (lam null "x" (var "x"))) "test90")
+      (check-equal?
+ (eval-exp (apply (lam "a" "b" (ifneq (var "b") (num 1) 
+                         (with "b" (plus (var "b") (num -1)) (apply (var "a") (var "b")  ))
+                         (num 3)
+                         )) (num 2))
+            ) (num 3) "test113")
+
+
+     
+      
+
+   
 
 
    ))

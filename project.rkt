@@ -443,6 +443,12 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
              )
          ]
 
+        ;; With
+        [(with? e) (
+                    infer-under-env (with-e2 e) (append (list (cons (with-s e) (infer-under-env (with-e1 e) env ) ) ) env)
+
+
+                    )]
         
         
 

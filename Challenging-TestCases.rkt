@@ -25,17 +25,21 @@
   (test-suite
    "Project Tests - Challenging Part"
 
-   ;1
-
-
-
 
 				
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam "y" "x" (apply (lam "z" "p" (ifneq (neg (mult (var "x") (var "y"))) (neg (var "p")) (plus (var "s")(var "x")) (plus (var "s")(var "z")))) (var "p")))))
-				(set "s" "p") 
-				"compute-free-vars test #10")
+					
+
+
+
+	
 				
-			
+
+  (check-equal? 	(closure-env (eval-exp-c (with* (list (cons "x" (num 1)) (cons "y" (num 2))) 
+				(lam "f" "y" (plus (var "x") (var "y"))))))
+				(list (cons "x" (num 1)))
+				"eval-exp-c test #1")
+					
+		
 				
    ))
 

@@ -471,36 +471,16 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
 
 ;; Problem 4
 
-(define (ifmunit e1 e2 e3) (
-cond [(munit? (eval-exp e1) ) e2] [#t e3]
-                            ))
 
+(define (ifmunit e1 e2 e3) (cnd (ismunit e1) e2 e3))
 
-
-;; This function generates the list of evaluated expressions and is used in with* function
-(define (numex_exp_calculator pairs_list results_list)(
-cond [(null? pairs_list ) results_list ]
-[(null? results_list) (numex_exp_calculator (cdr pairs_list) (list (cons (car (car pairs_list) ) (eval-exp (cdr (car pairs_list) ) ) ) ) ) ]
-[#t (numex_exp_calculator (cdr pairs_list) (append results_list (list (cons (car (car pairs_list) ) (eval-under-env (cdr (car pairs_list) ) results_list) ) ) ) ) ]
-
-                                                                       ))
-
-
-
-(define (with* bs e2) (
-                       eval-under-env e2 (numex_exp_calculator bs '())
-
-
-                       ))
-
-
+(define (with* bs e2) 
+  (cond
+    [(null? bs) e2]
+    [else (with (car (car bs) ) (cdr(car bs)) (with* (cdr bs) e2))]))
 
 
 (define (ifneq e1 e2 e3 e4) (cnd (iseq e1 e2) e4 e3))
-
-
-
-
 
 
 
@@ -548,52 +528,253 @@ cond [(null? pairs_list ) results_list ]
 
 ;; We will test this function directly, so it must do
 ;; as described in the assignment
-(define (compute-free-vars-handler e input_set) (
-
-cond
- [(var? e) (set-add input_set (var-string e) ) ]
- [(num? e) input_set ]    
- [(bool? e) input_set]
- [(munit? e) input_set]
- 
- ;;[(closure? e) (is_valid e)]
+(define (compute-free-vars e)
+  (car (compute-free-vars-handler e))
+)
 
 
+(define (compute-free-vars-handler e)
+  (cond [(var? e) 
+          (cons e (set (var-string e)))]
+        
+        [(num? e)
+          (cons e (set))]
+      
+        [(plus? e)
+         (let ([v1 (compute-free-vars-handler (plus-e1 e))]
+               [v2 (compute-free-vars-handler (plus-e2 e))])
+           (cons (plus (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+      
+        [(minus? e)
+         (let ([v1 (compute-free-vars-handler (minus-e1 e))]
+               [v2 (compute-free-vars-handler (minus-e2 e))])
+           (cons (minus (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+      
+        [(mult? e)
+         (let ([v1 (compute-free-vars-handler (mult-e1 e))]
+               [v2 (compute-free-vars-handler (mult-e2 e))])
+           (cons (mult (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+       
+        [(div? e)
+         (let ([v1 (compute-free-vars-handler (div-e1 e))]
+               [v2 (compute-free-vars-handler (div-e2 e))])
+           (cons (div (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+    
+        [(bool? e)
+          (cons e (set))]
+       
+        [(andalso? e)
+        (let ([v1 (compute-free-vars-handler (andalso-e1 e))]
+              [v2 (compute-free-vars-handler (andalso-e2 e))])
+           (cons (andalso (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+       
+        [(orelse? e)
+        (let ([v1 (compute-free-vars-handler (orelse-e1 e))]
+              [v2 (compute-free-vars-handler (orelse-e2 e))])
+           (cons (orelse (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+        
+        ;; negation
+        [(neg? e)
+         (let ([v (compute-free-vars-handler (neg-e1 e))])
+           (cons (neg (car v)) (cdr v)))]
 
- [(plus? e) (compute-free-vars-handler (plus-e1 e) (compute-free-vars-handler (plus-e2 e) input_set) ) ] 
- [(minus? e) (compute-free-vars-handler (minus-e1 e) (compute-free-vars-handler (minus-e2 e) input_set) ) ]
- [(mult? e) (compute-free-vars-handler (mult-e1 e) (compute-free-vars-handler (mult-e2 e) input_set) ) ]
- [(div? e) (compute-free-vars-handler (div-e1 e) (compute-free-vars-handler (div-e2 e) input_set) ) ]
- [(neg? e) (compute-free-vars-handler (neg-e1 e) input_set ) ]
- 
- [(andalso? e) (compute-free-vars-handler (andalso-e1 e) (compute-free-vars-handler (andalso-e2 e) input_set) ) ]
- [(orelse? e) (compute-free-vars-handler (orelse-e1 e) (compute-free-vars-handler (orelse-e2 e) input_set) ) ]
- [(iseq? e) (compute-free-vars-handler (iseq-e1 e) (compute-free-vars-handler (iseq-e2 e) input_set) ) ]
- [(ifnzero? e) (compute-free-vars-handler (ifnzero-e1 e) (compute-free-vars-handler (ifnzero-e2 e) (compute-free-vars-handler (ifnzero-e3 e) input_set) ) ) ]
- [(ifleq? e) (compute-free-vars-handler (ifleq-e1 e) (compute-free-vars-handler (ifleq-e2 e) (compute-free-vars-handler (ifleq-e3 e) (compute-free-vars-handler (ifleq-e4 e) input_set) ) ) ) ]
- [(lam? e) (set-union input_set (fun-challenge-freevars (compute-free-vars e) ) ) ]
- [(apply? e) (compute-free-vars-handler (apply-e1 e) (compute-free-vars-handler (apply-e2 e) input_set) ) ]
- [(apair? e) (compute-free-vars-handler (apair-e1 e) (compute-free-vars-handler (apair-e2 e) input_set) ) ]                                              
- [(1st? e) (compute-free-vars-handler (1st-e1 e) input_set ) ]
- [(2nd? e) (compute-free-vars-handler (2nd-e1 e) input_set ) ]
- [(ismunit? e) (compute-free-vars-handler (ismunit-e1 e) input_set ) ]
- [(with? e) (set-remove (compute-free-vars-handler (with-e2 e) input_set ) (with-s e) )  ]
+        ;; condition
+        [(cnd? e)
+        (let ([v1 (compute-free-vars-handler (cnd-e1 e))]
+              [v2 (compute-free-vars-handler (cnd-e2 e))]
+              [v3 (compute-free-vars-handler (cnd-e3 e))])
+           (cons (cnd (car v1) (car v2) (car v3)) (set-union (cdr v1) (set-union (cdr v2) (cdr v3)))))]
+      
+        ;; is equal
+        [(iseq? e)
+        (let ([v1 (compute-free-vars-handler (iseq-e1 e))]
+              [v2 (compute-free-vars-handler (iseq-e2 e))])
+           (cons (iseq (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+        
+        ;; not zero
+        [(ifnzero? e)
+         (let ([v1 (compute-free-vars-handler (ifnzero-e1 e))]
+               [v2 (compute-free-vars-handler (ifnzero-e2 e))]
+               [v3 (compute-free-vars-handler (ifnzero-e3 e))])
+           (cons (ifnzero (car v1) (car v2) (car v3)) (set-union (cdr v1) (cdr v2) (cdr v3))))]
+        
+        ;; less or equal
+        [(ifleq? e)
+          (let ([v1 (compute-free-vars-handler (ifleq-e1 e))]
+                [v2 (compute-free-vars-handler (ifleq-e2 e))]
+                [v3 (compute-free-vars-handler (ifleq-e3 e))]
+                [v4 (compute-free-vars-handler (ifleq-e4 e))])
+           (cons (ifleq (car v1) (car v2) (car v3) (car v4)) (set-union (cdr v1) (cdr v2) (cdr v3) (cdr v4))))]
+        
+        ;; lam
+        [(lam? e)
+          (let ([lam_body (compute-free-vars-handler (lam-body e))])
+            (let ([free-var-set (set-remove (set-remove (cdr lam_body) (lam-s2 e)) (lam-s1 e))])
+               (cons (fun-challenge (lam-s1 e) (lam-s2 e) (car lam_body) free-var-set) free-var-set)))]
+      
+        ;; apply
+        [(apply? e)
+         (let ([va (compute-free-vars-handler (apply-e1 e))]
+               [vf (compute-free-vars-handler (apply-e2 e))])
+           (cons (apply (car vf) (car va)) (set-union (cdr vf) (cdr va))))]
 
-                                                 ) )
+        ;; with
+        [(with? e)
+         (let ([v1 (compute-free-vars-handler (with-e1 e))]
+               [v2 (compute-free-vars-handler (with-e2 e))])
+            (cons (with (with-s e) (car v1) (car v2)) (set-union (set-remove (cdr v2) (with-s e)) (cdr v1))))]
+        
+        ;; pair
+        [(apair? e)
+         (let ([v1 (compute-free-vars-handler (apair-e1 e))]
+               [v2 (compute-free-vars-handler (apair-e2 e))])
+           (cons (apair (car v1) (car v2)) (set-union (cdr v1) (cdr v2))))]
+        
+        ;; 1st of pair
+        [(1st? e)
+         (let ([v (compute-free-vars-handler (1st-e1 e))])
+           (cons (1st (car v)) (cdr v)))]
 
+        ;; 2nd of pair
+        [(2nd? e)
+          (let ([v (compute-free-vars-handler (2nd-e1 e))])
+           (cons (2nd (car v)) (cdr v)))]
+       
+        ;; munit
+        [(munit? e)
+          (cons e (set))]
 
+        ;; is munit
+        [(ismunit? e)
+          (let ([v (compute-free-vars-handler (ismunit-e1 e))])
+           (cons (ismunit (car v)) (cdr v)))]
 
+        ;; closure
+        [(closure? e)
+          (cons e (set))]
+        
+        ;; let recursive
+        [(letrec? e)
+         (let ([v1 (compute-free-vars-handler (letrec-e1 e))]
+               [v2 (compute-free-vars-handler (letrec-e2 e))]
+               [v3 (compute-free-vars-handler (letrec-e3 e))])
+           (cons (letrec (car v1) (car v2) (car v3)) (set-union (cdr v1) (set-union (cdr v2) (cdr v3)))))]
+       
+        ;; key
+        [(key? e)
+          (let ([v (compute-free-vars-handler (key-e e))])
+           (cons (key (car v)) (cdr v)))]
+        
+        ;; record
+        [(record? e)
+          (let ([v (compute-free-vars-handler (record-r e))])
+           (cons (record (car v)) (cdr v)))]
 
-
-(define (compute-free-vars e) (
-                               cond [(lam? e) (fun-challenge (lam-s1 e) (lam-s2 e) (lam-body e) (set-remove (set-remove (compute-free-vars-handler (lam-body e)  (set ) ) (lam-s1 e) ) (lam-s2 e) ) ) ] [#t (error "The input of compute-free-vars is not a lam") ]
-
-                               ))
+        ;; value
+        [(value? e)
+          (let ([v (compute-free-vars-handler (value-r e))])
+           (cons (value (car v)) (cdr v)))]
+        
+        [#t (error (format "bad NUMEX expression: ~v" e))]
+))
 
 ;; Do NOT share code with eval-under-env because that will make grading
 ;; more difficult, so copy most of your interpreter here and make minor changes
-(define (eval-under-env-c e env) "CHANGE")
+(define (eval-under-env-c e env) 
+  (cond [(var? e)
+          (envlookup env (var-string e))]
+      
+        ;; arithmetic operations
+        [(num? e)
+          (cond [(integer? (num-int e)) e]
+                [else (error "NUMEX num applied to non racket integer")])]
+      
+        
+        [(bool? e) (is_valid e)]
+        [(munit? e) (is_valid e)]
+        [(apair? e) (apair (eval-under-env-c (apair-e1 e) env ) (eval-under-env-c (apair-e2 e) env ))]
+        [(closure? e) (is_valid e)]
+        ;; Plus
+        [(plus? e) 
+         (let ([v1 (eval-under-env-c (plus-e1 e) env)]
+
+
+
+               
+               [v2 (eval-under-env-c (plus-e2 e) env)])
+           (if (and (num? v1)
+                    (num? v2))
+               (num (+ (num-int v1)
+                       (num-int v2)))
+               (error "NUMEX addition applied to non-number")))]
+
+        ;; Minus
+        [(minus? e) 
+         (let ([v1 (eval-under-env-c (minus-e1 e) env)]
+               [v2 (eval-under-env-c (minus-e2 e) env)])
+           (if (and (num? v1)
+                    (num? v2))
+               (num (- (num-int v1)
+                       (num-int v2)))
+               (error "NUMEX subtraction applied to non-number")))]
+
+        ;; Mult
+        [(mult? e) 
+         (let ([v1 (eval-under-env-c (mult-e1 e) env)]
+               [v2 (eval-under-env-c (mult-e2 e) env)])
+           (if (and (num? v1)
+                    (num? v2))
+               (num (* (num-int v1)
+                       (num-int v2)))
+               (error "NUMEX multiplication applied to non-number")))]
+        
+        ;; Div
+        [(div? e) 
+         (let ([v1 (eval-under-env-c (div-e1 e) env)]
+               [v2 (eval-under-env-c (div-e2 e) env)])
+           (if (and (num? v1)
+                    (num? v2))
+               (num (quotient (num-int v1)
+                       (num-int v2)))
+               (error "NUMEX division applied to non-number")))]
+
+
+        [(with? e)
+          (let ([v (eval-under-env-c (with-e1 e) env)])
+            (if (string? (with-s e))
+              (eval-under-env-c (with-e2 e) (cons (cons (with-s e) v) env))
+              (error "NUMEX key applied to not-string variable")))]
+
+
+         ;; lam
+        [(lam? e)
+          (if (and (or (string? (lam-s1 e))
+                       (null? (lam-s1 e)))
+                   (string? (lam-s2 e)))
+            (closure env e)
+            (error "NUMEX lam name and parameter name must be string"))]
+        
+        [(fun-challenge? e)
+         (let ([nameopt (fun-challenge-nameopt e)]
+               [formal (fun-challenge-formal e)]
+               [freevars (fun-challenge-freevars e)])
+         (if (and (or (string? nameopt) (null? nameopt)) (string? formal))
+             (closure (commons env freevars)  e)
+             (error "NUMEX function name and parameter name must be string")))]
+
+        
+        
+))
+
+(define (commons env set)
+  (if (equal? env null) null
+      (if (set-member? set (car (car env)))
+          (cons (car env) (commons (cdr env) set))
+          (commons (cdr env) set)))
+)
+
 
 ;; Do NOT change this
 (define (eval-exp-c e)
-  (eval-under-env-c (compute-free-vars e) null))
+  (eval-under-env-c (compute-free-vars e) null)
+)

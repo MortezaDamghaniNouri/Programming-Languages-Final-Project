@@ -27,44 +27,13 @@
 
    ;1
 
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam "f" "a" (plus (var "a") (var "u"))))) 
-				(set "u") 
-				"compute-free-vars test #1")
-					
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam "f" "a" (mult (var "t") (var "u")))))
-				(set "t" "u") 
-				"compute-free-vars test #2")
-				
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam "f" "a" (neg (mult (var "t") (var "u"))))))
-				(set "t" "u") 
-				"compute-free-vars test #3")
-				
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam null "a" (var "t"))))
-				(set "t") 
-				"compute-free-vars test #4")				
-				
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam null "a" (num 2))))
-				(set) 
-				"compute-free-vars test #6")
 
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam null "bt" (bool #t))))
-				(set) 
-				"compute-free-vars test #6-1")
 
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam null "a" (iseq (plus (var "x") (var "y")) (neg (var "y"))))))
-				(set "y" "x") 
-				"compute-free-vars test #7")
 
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam null "x" (ifnzero (div (var "x") (var "y")) (neg (var "p")) (minus (var "s")(var "t"))))))
-				(set "y" "p" "s" "t") 
-				"compute-free-vars test #8")
 				
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam null "x" (ifleq (neg (mult (var "x") (var "y"))) (neg (var "p")) (neg (andalso (var "bt")(var "bt"))) (orelse (var "bf")(var "bf"))))))
-				(set "y" "p" "bt" "bf") 
-				"compute-free-vars test #9")
-(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam "y" "x" (lam "z" "p" (ifleq (neg (mult (var "x") (var "y"))) (neg (var "p")) (plus (var "s")(var "x")) (plus (var "s")(var "z")))))))
-				(set "s") 
-				"compute-free-vars test #11")
+(check-equal? 	(fun-challenge-freevars (compute-free-vars (lam "y" "x" (apply (lam "z" "p" (ifneq (neg (mult (var "x") (var "y"))) (neg (var "p")) (plus (var "s")(var "x")) (plus (var "s")(var "z")))) (var "p")))))
+				(set "s" "p") 
+				"compute-free-vars test #10")
 				
 			
 				

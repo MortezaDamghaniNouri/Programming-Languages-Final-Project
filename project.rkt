@@ -48,6 +48,7 @@
 
 
 
+
 ;; Problem 1
 
 
@@ -554,7 +555,7 @@ cond
  [(num? e) input_set ]    
  [(bool? e) input_set]
  [(munit? e) input_set]
- [(apair? e) input_set]
+ 
  ;;[(closure? e) (is_valid e)]
 
 
@@ -571,12 +572,12 @@ cond
  [(ifnzero? e) (compute-free-vars-handler (ifnzero-e1 e) (compute-free-vars-handler (ifnzero-e2 e) (compute-free-vars-handler (ifnzero-e3 e) input_set) ) ) ]
  [(ifleq? e) (compute-free-vars-handler (ifleq-e1 e) (compute-free-vars-handler (ifleq-e2 e) (compute-free-vars-handler (ifleq-e3 e) (compute-free-vars-handler (ifleq-e4 e) input_set) ) ) ) ]
  [(lam? e) (set-union input_set (fun-challenge-freevars (compute-free-vars e) ) ) ]
- 
-                                                
-
-
-
-
+ [(apply? e) (compute-free-vars-handler (apply-e1 e) (compute-free-vars-handler (apply-e2 e) input_set) ) ]
+ [(apair? e) (compute-free-vars-handler (apair-e1 e) (compute-free-vars-handler (apair-e2 e) input_set) ) ]                                              
+ [(1st? e) (compute-free-vars-handler (1st-e1 e) input_set ) ]
+ [(2nd? e) (compute-free-vars-handler (2nd-e1 e) input_set ) ]
+ [(ismunit? e) (compute-free-vars-handler (ismunit-e1 e) input_set ) ]
+ [(with? e) (set-remove (compute-free-vars-handler (with-e2 e) input_set ) (with-s e) )  ]
 
                                                  ) )
 

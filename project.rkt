@@ -418,7 +418,7 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
         
         ;; Apair
         [(apair? e) (
-                     cond [(or (equal? (infer-under-env (apair-e1 e) env) (infer-under-env (apair-e2 e) env) ) (equal? "null" (infer-under-env (apair-e2 e) env) ) ) (collection (infer-under-env (apair-e1 e) env) ) ]
+                     cond [(or (equal? (collection (infer-under-env (apair-e1 e) env) ) (infer-under-env (apair-e2 e) env) ) (equal? "null" (infer-under-env (apair-e2 e) env) ) ) (collection (infer-under-env (apair-e1 e) env) ) ]
                           [#t (error "NUMEX TYPE ERROR: the types of the elements of the apair are not equal") ]
              )]
         
@@ -430,7 +430,7 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
 
         ;; 2nd
         [(2nd? e) (
-                   cond [(collection? (infer-under-env (2nd-e1 e) env) ) (collection-type (infer-under-env (2nd-e1 e) env) ) ]
+                   cond [(collection? (infer-under-env (2nd-e1 e) env) ) (infer-under-env (2nd-e1 e) env)  ]
                         [#t (error "NUMEX TYPE ERROR: the type of the input of 2nd is not proper") ]
              )]
 

@@ -98,6 +98,10 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
 
 
 
+
+
+
+
 ;; Complete more cases for other kinds of NUMEX expressions.
 ;; We will test eval-under-env by calling it directly even though
 ;; "in real life" it would be a helper function of eval-exp.
@@ -269,7 +273,7 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
 
         ;;Letrec
         [(letrec? e) (
-                      eval-under-env (letrec-e5 e) (append (list (cons (eval-under-env (letrec-s1 e) env) (eval-under-env (letrec-e1 e) env ) ) (cons (eval-under-env (letrec-s2 e) env) (eval-under-env (letrec-e2 e) env ) ) (cons (eval-under-env (letrec-s3 e) env) (eval-under-env (letrec-e3 e) env ) ) (cons (eval-under-env (letrec-s4 e) env) (eval-under-env (letrec-e4 e) env ) ) ) env)
+                      eval-under-env (letrec-e5 e) (append (list (cons (letrec-s1 e) (eval-under-env (letrec-e1 e) env ) ) (cons (letrec-s2 e) (eval-under-env (letrec-e2 e) (list (cons (letrec-s1 e) (eval-under-env (letrec-e1 e) env ) ) env) ) ) (cons (letrec-s3 e) (eval-under-env (letrec-e3 e) env ) ) (cons (letrec-s4 e) (eval-under-env (letrec-e4 e) env ) ) ) env)
 
 
              )]

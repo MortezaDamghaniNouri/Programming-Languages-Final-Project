@@ -13,13 +13,7 @@
 
    
 
-      (check-equal?
- (eval-exp (apply (lam "a" "b" (ifneq (var "b") (num 1) 
-                         (with "b" (plus (var "b") (num -1)) (apply (var "a") (var "b")  ))
-                         (num 3)
-                         )) (num 2))
-            ) (num 3) "test113")
-
+     (check-equal? (eval-exp (with* (list (cons "f" (num 2)) (cons "y" (var "f"))) (plus (var "f") (plus (var "y") (num 3))))) (num 7) "test72")
 
      
       

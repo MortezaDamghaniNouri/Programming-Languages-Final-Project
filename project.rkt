@@ -464,7 +464,23 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
 cond [(munit? (eval-exp e1) ) e2] [#t e3]
                             ))
 
-(define (with* bs e2) "CHANGE")
+
+
+;; This function generates the list of evaluated expressions and is used in with* function
+(define (numex_exp_calculator pairs_list results_list)(
+cond [(null? pairs_list ) results_list ]
+[(null? results_list) (numex_exp_calculator (cdr pairs_list) (list (cons (car (car pairs_list) ) (eval-exp (cdr (car pairs_list) ) ) ) ) ) ]
+[#t (numex_exp_calculator (cdr pairs_list) (append results_list (list (cons (car (car pairs_list) ) (eval-under-env (cdr (car pairs_list) ) results_list) ) ) ) ) ]
+
+                                                                       ))
+
+
+
+(define (with* bs e2) (
+                       eval-under-env e2 (numex_exp_calculator bs '())
+
+
+                       ))
 
 
 

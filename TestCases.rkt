@@ -12,6 +12,16 @@
    "Project Tests"
 
    
+;; type inference tests:
+
+
+
+
+
+
+(check-equal? (infer-exp (apply (tlam "f" "x" "int" (plus (var "x") (num 3))) (num 4))) "int" "test178")
+
+
 
       
 

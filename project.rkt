@@ -405,12 +405,12 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
         ;; Function
         [(tlam? e) (
 
-                    function (tlam-arg-type e) (infer-under-env (tlam-body e) env) 
+                    function (tlam-arg-type e) (infer-under-env (tlam-body e) (append (list (cons (tlam-formal e) (tlam-arg-type e) ) ) env ) ) 
                     )]
         
         ;; Apply
         [(apply? e) (
-                     cond [(and (function? (infer-under-env (apply-e1 e) env ) ) (equal? (infer-under-env (apply-e1 e) env) (infer-under-env (apply-e2 e) env) ) ) (infer-under-env (apply-e1 e) env) ]
+                     cond [(and (function? (infer-under-env (apply-e1 e) env ) ) (equal? (function-input-type (infer-under-env (apply-e1 e) env) ) (infer-under-env (apply-e2 e) env) ) ) (function-output-type (infer-under-env (apply-e1 e) env) ) ]
                           [#t (error "NUMEX TYPE ERROR: the inputs of the apply do not have the same function type") ]
                      )
          ]

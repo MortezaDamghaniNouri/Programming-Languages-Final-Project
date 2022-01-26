@@ -547,7 +547,47 @@ cond [(null? pairs_list ) results_list ]
 
 ;; We will test this function directly, so it must do
 ;; as described in the assignment
-(define (compute-free-vars e) "CHANGE")
+(define (compute-free-vars-handler e input_set) (
+
+cond
+ [(var? e) (set-add input_set (var-string e) ) ]
+ [(num? e) input_set ]    
+ [(bool? e) input_set]
+ [(munit? e) input_set]
+ [(apair? e) input_set]
+ ;;[(closure? e) (is_valid e)]
+
+
+
+ [(plus? e) (compute-free-vars-handler (plus-e1 e) (compute-free-vars-handler (plus-e2 e) input_set) ) ] 
+ [(minus? e) (compute-free-vars-handler (minus-e1 e) (compute-free-vars-handler (minus-e2 e) input_set) ) ]
+ [(mult? e) (compute-free-vars-handler (mult-e1 e) (compute-free-vars-handler (mult-e2 e) input_set) ) ]
+ [(div? e) (compute-free-vars-handler (div-e1 e) (compute-free-vars-handler (div-e2 e) input_set) ) ]
+ [(neg? e) (compute-free-vars-handler (neg-e1 e) input_set ) ]
+ 
+ [(andalso? e) (compute-free-vars-handler (andalso-e1 e) (compute-free-vars-handler (andalso-e2 e) input_set) ) ]
+ [(orelse? e) (compute-free-vars-handler (orelse-e1 e) (compute-free-vars-handler (orelse-e2 e) input_set) ) ]
+ [(iseq? e) (compute-free-vars-handler (iseq-e1 e) (compute-free-vars-handler (iseq-e2 e) input_set) ) ]
+ [(ifnzero? e) (compute-free-vars-handler (ifnzero-e1 e) (compute-free-vars-handler (ifnzero-e2 e) (compute-free-vars-handler (ifnzero-e3 e) input_set) ) ) ]
+ [(ifleq? e) (compute-free-vars-handler (ifleq-e1 e) (compute-free-vars-handler (ifleq-e2 e) (compute-free-vars-handler (ifleq-e3 e) (compute-free-vars-handler (ifleq-e4 e) input_set) ) ) ) ]
+ [(lam? e) (set-union input_set (fun-challenge-freevars (compute-free-vars e) ) ) ]
+ 
+                                                
+
+
+
+
+
+                                                 ) )
+
+
+
+
+
+(define (compute-free-vars e) (
+                               cond [(lam? e) (fun-challenge (lam-s1 e) (lam-s2 e) (lam-body e) (set-remove (set-remove (compute-free-vars-handler (lam-body e)  (set ) ) (lam-s1 e) ) (lam-s2 e) ) ) ] [#t (error "The input of compute-free-vars is not a lam") ]
+
+                               ))
 
 ;; Do NOT share code with eval-under-env because that will make grading
 ;; more difficult, so copy most of your interpreter here and make minor changes

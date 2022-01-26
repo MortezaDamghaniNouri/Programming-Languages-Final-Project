@@ -502,11 +502,25 @@ cond [(null? pairs_list ) results_list ]
 
 ;; Problem 5
 
-(define numex-filter "CHANGE")
+(define numex-filter 
+(lam null "mapper" 
+(lam "map" "lst" 
+(cnd (ismunit (var "lst")) 
+(munit)
+(with "result" (apply (var "mapper") (1st (var "lst"))) 
+(ifnzero (var "result")
+(apair (var "result") (apply (var "map") (2nd (var "lst"))))
+(apply (var "map") (2nd (var "lst")))))))))
 
 (define numex-all-gt
   (with "filter" numex-filter
-        "CHANGE (notice filter is now in NUMEX scope)"))
+    (lam null "i"
+    (lam null "list"
+    (apply 
+    (apply (var "filter") (lam null "number"
+    (ifleq (var "number") (var "i")(num 0)(var "number"))))
+    (var "list"))))))
+
 
 ;; Problem 6
 

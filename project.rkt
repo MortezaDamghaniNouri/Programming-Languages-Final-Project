@@ -150,11 +150,11 @@ cond [(equal? s (key-s (record-k r) ) ) (key-e (record-k r) ) ]
         [(div? e) 
          (let ([v1 (eval-under-env (div-e1 e) env)]
                [v2 (eval-under-env (div-e2 e) env)])
-           (if (and (num? v1)
+           (cond [(= (num-int v2) 0) (error "Division by zero")] [(and (num? v1)
                     (num? v2))
                (num (quotient (num-int v1)
-                       (num-int v2)))
-               (error "NUMEX division applied to non-number")))]
+                       (num-int v2)))]
+               [#t (error "NUMEX division applied to non-number")]   ))]
         
         ;; Andalso
         [(andalso? e) 
@@ -534,8 +534,12 @@ cond [(null? pairs_list ) results_list ]
 
 ;; Problem 6
 
-(define type-error-but-evaluates-ok "CHANGE")
-(define type-ok-but-evaluates-error "CHANGE")
+(define type-error-but-evaluates-ok (eval-exp (andalso (bool #f) (num 10) ) ) )
+;; Another example for this part is: (eval-exp (apair (num 12) (bool #t) ) )
+
+
+
+(define type-ok-but-evaluates-error (eval-exp (div (num 2) (num 0) ) ))
 
 ;; Challenge Problem
 
